@@ -1,0 +1,1348 @@
+{
+  "name": "competitor analysis",
+  "nodes": [
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=Find direct and indirect competitors of {{ $json['Name of Company'] }} in the cell and gene therapy (CGT) manufacturing sector, focusing on AI-driven automation, robotics, or cloud-based platforms relevant to {{ $json.Description }}.Use google search results always.",
+        "options": {
+          "systemMessage": "=You are a Competition Analysis Agent specializing in cell and gene therapy manufacturing. Identify direct competitors (e.g., companies offering AI-driven robotics or cloud-based platforms for CGT) and indirect competitors (e.g., general biotech automation providers). Use the Google Search API with queries like \"{{ $json['Name of Company'] }} cell and gene therapy competitors\" or \"biotech automation startups\""
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 2,
+      "position": [
+        -544,
+        1388
+      ],
+      "id": "44b6d47b-20dd-4c81-b03f-c4d11425d777",
+      "name": "AI Agent"
+    },
+    {
+      "parameters": {
+        "toolDescription": "Makes an HTTP request and returns the response data containing google search  results",
+        "method": "POST",
+        "url": "https://google.serper.dev/search",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "X-API-KEY",
+              "value": "2826e5d216c467b65dc7f3e16943e8f502e8aec8"
+            }
+          ]
+        },
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "q",
+              "value": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('parameters0_Value', ``, 'string') }}"
+            }
+          ]
+        },
+        "options": {
+          "redirect": {
+            "redirect": {}
+          }
+        }
+      },
+      "type": "n8n-nodes-base.httpRequestTool",
+      "typeVersion": 4.2,
+      "position": [
+        -384,
+        1612
+      ],
+      "id": "a014b91e-5128-48f6-8be5-db2d81b78edc",
+      "name": "Google Search Results"
+    },
+    {
+      "parameters": {
+        "operation": "appendOrUpdate",
+        "documentId": {
+          "__rl": true,
+          "value": "1u-YDZMz4BGijSENiAEl0ew4_-2tJE661O7Cx0-HQ6qg",
+          "mode": "list",
+          "cachedResultName": "competitor analysis",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1u-YDZMz4BGijSENiAEl0ew4_-2tJE661O7Cx0-HQ6qg/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Sheet1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1u-YDZMz4BGijSENiAEl0ew4_-2tJE661O7Cx0-HQ6qg/edit#gid=0"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Name of Company": "={{ $('Google Sheets Trigger Daily').item.json['Name of Company'] }}",
+            "List of Competitors": "={{ $json.output }}"
+          },
+          "matchingColumns": [
+            "Name of Company"
+          ],
+          "schema": [
+            {
+              "id": "Name of Company",
+              "displayName": "Name of Company",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Description",
+              "displayName": "Description",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "List of Competitors",
+              "displayName": "List of Competitors",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.6,
+      "position": [
+        256,
+        1388
+      ],
+      "id": "aa64c0f7-a5fe-43dc-a977-7a5183fa38e7",
+      "name": "Google Sheets"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=Given the list of competitors {{ $json.output }}, verify if each is relevant to cell and gene therapy manufacturing, AI-driven automation, or cloud-based platforms. Output only relevant competitors in a comma-separated list.",
+        "options": {
+          "systemMessage": "You are a validation agent ensuring competitors are relevant to the cell and gene therapy sector. Exclude companies not involved in biotech, automation, or CGT-related technologies. Limit the results to three competitors."
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 2,
+      "position": [
+        -144,
+        1388
+      ],
+      "id": "fa180f06-1b39-4d76-8298-df510628e172",
+      "name": "AI Agent1"
+    },
+    {
+      "parameters": {
+        "instructions": "split the input based on comma and trim them",
+        "codeGeneratedForPrompt": "split the input based on comma and trim them",
+        "jsCode": "const items = $input.all();\nconst updatedItems = items.map((item) => {\n  if (item?.json[\"List of Competitors\"]) {\n    item.json[\"List of Competitors\"] = item.json[\"List of Competitors\"]\n      .split(\",\")\n      .map((str) => str.trim());\n  }\n  return item;\n});\nreturn updatedItems;\n"
+      },
+      "type": "n8n-nodes-base.aiTransform",
+      "typeVersion": 1,
+      "position": [
+        480,
+        1388
+      ],
+      "id": "55064e4a-a4a3-41f8-9c93-aac41d8aeb17",
+      "name": "AI Transform"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=The competitor is {{ $json.competitor }} . Find its product launches, funding,partnerships,regulatory events and new coverage.Always use Google Search Results1node to get response for each company.",
+        "options": {
+          "systemMessage": "=You are a Competitive Intelligence Agent. Your task is to gather and summarize recent insights about a target company.Based on the cadence ( {{ $('Google Sheets Trigger Daily').item.json.Cadence }}), identify competitors and provide:\n- Daily: Focus on recent press coverage and urgent updates (last 24 hours).\n- Weekly: Summarize product launches, partnerships, and funding rounds (last 7 days).\n- Monthly: Provide a strategic overview of competitors, including emerging startups and market trends (last 30 days)Given a company name and an area of focus, perform a concise, objective analysis by identifying information related to:\nArea of focuses are:\n-Product Launches\n-Funding Rounds\n-Strategic Partnerships\n-Regulatory Activity\n-Media & Press Coverage\n\nUse the Google Search Results to retrieve relevant results by forming queries like:\n\nfor each company name\n\"<Company Name>\" + \"<Area of Focus>\"+\"<{{ $('Google Sheets Trigger Daily').item.json.Cadence === 'Daily' ? 'past 24 hours' : $('Google Sheets Trigger Daily').item.json.Cadence=== 'Weekly' ? 'past week' : 'past month' }}>\"\n\nAnalyze the most relevant articles retrieved and return a structured summary grouped by the five categories above. Be brief, factual, and avoid speculation. Your output should be suitable for use in executive-level briefings. "
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 2,
+      "position": [
+        1152,
+        1388
+      ],
+      "id": "213ba824-812d-4b8a-b49a-6121db7cc0c9",
+      "name": "AI Agent2"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=Summarise this article {{ $json.output }}",
+        "options": {
+          "systemMessage": "You are a competitive intelligence assistant. Given raw competitor activity data, your task is to extract and structure relevant updates under the following categories:\n\n1. **Product Launches** – Include product names, platforms, factories, or networks.\n2. **Partnerships** – Identify companies, scope of collaboration, and dates if available.\n3. **Funding Rounds** – Note round type (Seed, Series A/B/C), amount, and date if mentioned.\n4. **Regulatory Activity** – Capture any FDA or agency-related approvals, designations, or certifications.\n5. **Press/Other Highlights** – Any newsworthy events that do not fit in the categories above.\n\nReturn a json format with keys for each header\n"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 2,
+      "position": [
+        1552,
+        1388
+      ],
+      "id": "cec67b2c-1d31-4c48-bf64-54886c31d7e4",
+      "name": "AI Agent3"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "n8n-nodes-base.splitInBatches",
+      "typeVersion": 3,
+      "position": [
+        928,
+        1388
+      ],
+      "id": "164568b3-b735-4fe6-9959-8946591b6074",
+      "name": "Loop Over Items"
+    },
+    {
+      "parameters": {
+        "amount": 10
+      },
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [
+        2576,
+        1512
+      ],
+      "id": "6b30d7ee-320c-49e7-9df2-3f5a2def79ec",
+      "name": "Wait",
+      "webhookId": "709aa0d2-7309-4bc3-9630-ebf7705372f9"
+    },
+    {
+      "parameters": {
+        "modelName": "models/gemini-1.5-flash",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "typeVersion": 1,
+      "position": [
+        1184,
+        1612
+      ],
+      "id": "9f2f2b6e-4594-4dd3-90c6-d55c5e8f6e57",
+      "name": "Google Gemini Chat Model"
+    },
+    {
+      "parameters": {
+        "modelName": "models/gemini-2.0-flash",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "typeVersion": 1,
+      "position": [
+        -512,
+        1612
+      ],
+      "id": "d74877c5-f602-41b2-85be-ba56ea67d5ec",
+      "name": "Google Gemini Chat Model1"
+    },
+    {
+      "parameters": {
+        "modelName": "models/gemini-2.0-flash",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "typeVersion": 1,
+      "position": [
+        -48,
+        1612
+      ],
+      "id": "9c233506-b48f-4f6a-910f-c04f93a5be6f",
+      "name": "Google Gemini Chat Model2"
+    },
+    {
+      "parameters": {
+        "modelName": "models/gemini-2.0-flash",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "typeVersion": 1,
+      "position": [
+        1648,
+        1612
+      ],
+      "id": "3e43cd36-532c-4891-8a39-4417cc803ad9",
+      "name": "Google Gemini Chat Model3"
+    },
+    {
+      "parameters": {
+        "instructions": "modify the input data  json by removing the markdown code block markers(json and ) before parsing.based upon the keys as separate fields like Product Launches, Partnerships, Funding Rounds,Regulatory Activity,Press/Other Highlights",
+        "codeGeneratedForPrompt": "modify the input data  json by removing the markdown code block markers(json and ) before parsing.based upon the keys as separate fields like Product Launches, Partnerships, Funding Rounds,Regulatory Activity,Press/Other Highlights",
+        "jsCode": "const items = $input.all();\nconst updatedItems = items.map((item) => {\n  const output = item.json.output;\n  const jsonStart = output.indexOf(\"{\");\n  const jsonEnd = output.lastIndexOf(\"}\");\n  const jsonString = output.slice(jsonStart, jsonEnd + 1);\n  const parsedJson = JSON.parse(jsonString);\n  item.json = { ...item.json, ...parsedJson };\n  return item;\n});\nreturn updatedItems;\n"
+      },
+      "type": "n8n-nodes-base.aiTransform",
+      "typeVersion": 1,
+      "position": [
+        2040,
+        1388
+      ],
+      "id": "fadc93e6-5eca-43f0-aace-c7e01baa1b9f",
+      "name": "AI Transform1"
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "value": "1u-YDZMz4BGijSENiAEl0ew4_-2tJE661O7Cx0-HQ6qg",
+          "mode": "list",
+          "cachedResultName": "competitor analysis",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1u-YDZMz4BGijSENiAEl0ew4_-2tJE661O7Cx0-HQ6qg/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 1684701457,
+          "mode": "list",
+          "cachedResultName": "OrganisedData",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1u-YDZMz4BGijSENiAEl0ew4_-2tJE661O7Cx0-HQ6qg/edit#gid=1684701457"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Summary": "={{ $('AI Agent2').item.json.output }}",
+            "Product Launches": "={{ $json[\"Product Launches\"] }}",
+            "Partnerships": "={{ $json.Partnerships }}",
+            "Funding Rounds": "={{ $json[\"Funding Rounds\"] }}",
+            "Regulatory Activity": "={{ $json[\"Regulatory Activity\"] }}",
+            "Press/Other Highlights": "={{ $json[\"Press/Other Highlights\"] }}",
+            "Competitor": "={{ $('Loop Over Items').item.json.competitor }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "Competitor",
+              "displayName": "Competitor",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Summary",
+              "displayName": "Summary",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Product Launches",
+              "displayName": "Product Launches",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Partnerships",
+              "displayName": "Partnerships",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Funding Rounds",
+              "displayName": "Funding Rounds",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Regulatory Activity",
+              "displayName": "Regulatory Activity",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Press/Other Highlights",
+              "displayName": "Press/Other Highlights",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.6,
+      "position": [
+        2352,
+        1388
+      ],
+      "id": "09951fc0-e807-4679-a483-065bcf2474e7",
+      "name": "Google Sheets1"
+    },
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "value": "1u-YDZMz4BGijSENiAEl0ew4_-2tJE661O7Cx0-HQ6qg",
+          "mode": "list",
+          "cachedResultName": "competitor analysis",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1u-YDZMz4BGijSENiAEl0ew4_-2tJE661O7Cx0-HQ6qg/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 1684701457,
+          "mode": "list",
+          "cachedResultName": "OrganisedData",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1u-YDZMz4BGijSENiAEl0ew4_-2tJE661O7Cx0-HQ6qg/edit#gid=1684701457"
+        },
+        "options": {
+          "returnFirstMatch": false
+        }
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.6,
+      "position": [
+        1240,
+        856
+      ],
+      "id": "fd840c76-3380-4f36-b1ce-4a23b4166a97",
+      "name": "Google Sheets2",
+      "executeOnce": true
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "Assign a threat score (0-10) based on impact.",
+        "options": {
+          "systemMessage": "=Given competitor data for {{ $json.Competitor }}:\n- Product Launches: {{ $json['Product Launches'] }}\n- Funding Rounds: {{ $json['Funding Rounds'] }}\n- Partnerships: {{ $json.Partnerships }}\n- Market Overlap: Analyze overlap with {{ $('Google Sheets Trigger Daily').item.json['Name of Company'] }} in cell and gene therapy automation.\nCalculate a threat score (0-10) using:\n- Product Launches: 30% (score based on number and impact)\n- Funding Rounds: 30% (score based on amount and recency)\n- Partnerships: 20% (score based on strategic importance)\n- Market Overlap: 20% (score based on shared focus)\nOutput JSON: { \"name\": \"\", \"positioning\": \"\", \"strategic_shifts\": \"\", \"threats\": \"\", \"threat_score\": 0 }"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 2,
+      "position": [
+        1952,
+        624
+      ],
+      "id": "43356e25-7b09-44f6-8695-6394f5f8bc1b",
+      "name": "AI Agent4"
+    },
+    {
+      "parameters": {
+        "modelName": "models/gemini-2.0-flash",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "typeVersion": 1,
+      "position": [
+        2048,
+        848
+      ],
+      "id": "9b060d40-d3c7-4332-8319-1a6f2f0c8fa8",
+      "name": "Google Gemini Chat Model4"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "n8n-nodes-base.splitInBatches",
+      "typeVersion": 3,
+      "position": [
+        1640,
+        856
+      ],
+      "id": "1988f107-2150-410b-bb8b-580e06ad7460",
+      "name": "Loop Over Items1"
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "value": "1u-YDZMz4BGijSENiAEl0ew4_-2tJE661O7Cx0-HQ6qg",
+          "mode": "list",
+          "cachedResultName": "competitor analysis",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1u-YDZMz4BGijSENiAEl0ew4_-2tJE661O7Cx0-HQ6qg/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 1995740510,
+          "mode": "list",
+          "cachedResultName": "Threat Score",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1u-YDZMz4BGijSENiAEl0ew4_-2tJE661O7Cx0-HQ6qg/edit#gid=1995740510"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Competitor": "={{ $json.name }}",
+            "Positioning": "={{ $json.positioning }}",
+            "Strategic Shift": "={{ $json.strategic_shifts }}",
+            "Threat": "={{ $json.threats }}",
+            "Threat Score": "={{ $json.threat_score }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "Competitor",
+              "displayName": "Competitor",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Positioning",
+              "displayName": "Positioning",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Strategic Shift",
+              "displayName": "Strategic Shift",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Threat",
+              "displayName": "Threat",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Threat Score",
+              "displayName": "Threat Score",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.6,
+      "position": [
+        2800,
+        804
+      ],
+      "id": "0b6fa357-deba-46f7-b30b-68fc338dffeb",
+      "name": "Google Sheets3"
+    },
+    {
+      "parameters": {
+        "instructions": "From input json remove the ```json markdown like item.json.output.replace(/```json\\s*|\\s*```/g, \"\") and then saggregate the name of competitor ,positioning,strategic_shifts,threats and its threat score as two headers\nconst jsonMatch = item.json.output.match(/```json\\s*([\\s\\S]*?)\\s*```/);\nconst output = jsonMatch ? JSON.parse(jsonMatch[1]) : {};\nReplace your current line:\n\nconst output = JSON.parse(item.json.output.replace(/```json\\s*|\\s*```/g, \"\"));\nwith the two lines above.",
+        "codeGeneratedForPrompt": "From input json remove the ```json markdown like item.json.output.replace(/```json\\s*|\\s*```/g, \"\") and then saggregate the name of competitor ,positioning,strategic_shifts,threats and its threat score as two headers\nconst jsonMatch = item.json.output.match(/```json\\s*([\\s\\S]*?)\\s*```/);\nconst output = jsonMatch ? JSON.parse(jsonMatch[1]) : {};\nReplace your current line:\n\nconst output = JSON.parse(item.json.output.replace(/```json\\s*|\\s*```/g, \"\"));\nwith the two lines above.",
+        "jsCode": "const items = $input.all();\nconst updatedItems = items.map((item) => {\n  const jsonMatch = item.json.output.match(/```json\\s*([\\s\\S]*?)\\s*```/);\n  const output = jsonMatch ? JSON.parse(jsonMatch[1]) : {};\n  const { name, positioning, strategic_shifts, threats, threat_score } = output;\n  return { name, positioning, strategic_shifts, threats, threat_score };\n});\nreturn updatedItems;\n"
+      },
+      "type": "n8n-nodes-base.aiTransform",
+      "typeVersion": 1,
+      "position": [
+        2352,
+        804
+      ],
+      "id": "a0adbe6b-e24d-429b-af88-8d15ba283f18",
+      "name": "AI Transform2"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "fff3fb39-80f9-4912-a911-57183d43611d",
+              "name": "name",
+              "value": "={{ $json.name}}",
+              "type": "string"
+            },
+            {
+              "id": "3911f3c6-e3d6-4645-82e1-24ed7c361224",
+              "name": "positioning",
+              "value": "={{ $json.positioning }}",
+              "type": "string"
+            },
+            {
+              "id": "8815e765-f45e-44d5-b677-c4d9f8146fbd",
+              "name": "strategic_shifts",
+              "value": "={{ $json.strategic_shifts }}",
+              "type": "string"
+            },
+            {
+              "id": "e473409b-e91d-4ceb-9343-1e41591e1ad4",
+              "name": "threats",
+              "value": "={{ $json.threats }}",
+              "type": "string"
+            },
+            {
+              "id": "718a0cfa-83bb-4371-873b-320768976a07",
+              "name": "threat_score",
+              "value": "={{ $json.threat_score }}",
+              "type": "number"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        2576,
+        804
+      ],
+      "id": "10da4f24-794e-4052-8977-a58f8f5eab74",
+      "name": "Edit Fields1"
+    },
+    {
+      "parameters": {
+        "html": "<!DOCTYPE html>\n<html lang=\"en\">\n<head>\n    <meta charset=\"UTF-8\">\n    <meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\">\n    <title>Competitor Analysis Report</title>\n    <style>\n        body {\n            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;\n            line-height: 1.6;\n            color: #333;\n            max-width: 800px;\n            margin: 0 auto;\n            padding: 20px;\n            background: #fff;\n        }\n        \n        .header {\n            text-align: center;\n            border-bottom: 3px solid #2c3e50;\n            padding-bottom: 20px;\n            margin-bottom: 30px;\n        }\n        \n        .header h1 {\n            color: #2c3e50;\n            font-size: 2.5em;\n            margin-bottom: 10px;\n        }\n        \n        .header .date {\n            color: #7f8c8d;\n            font-size: 1.1em;\n        }\n        \n        .company-section {\n            background: #f8f9fa;\n            padding: 20px;\n            border-radius: 8px;\n            margin-bottom: 30px;\n            border-left: 5px solid #3498db;\n        }\n        \n        .company-name {\n            color: #2c3e50;\n            font-size: 1.8em;\n            margin-bottom: 15px;\n            font-weight: bold;\n        }\n        \n        .competitors-grid {\n            display: grid;\n            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));\n            gap: 20px;\n            margin-bottom: 30px;\n        }\n        \n        .competitor-card {\n            background: white;\n            border: 1px solid #e1e8ed;\n            border-radius: 12px;\n            padding: 20px;\n            box-shadow: 0 2px 8px rgba(0,0,0,0.1);\n            transition: transform 0.2s ease;\n        }\n        \n        .competitor-card:hover {\n            transform: translateY(-2px);\n            box-shadow: 0 4px 12px rgba(0,0,0,0.15);\n        }\n        \n        .competitor-name {\n            color: #e74c3c;\n            font-size: 1.4em;\n            font-weight: bold;\n            margin-bottom: 15px;\n            display: flex;\n            align-items: center;\n        }\n        \n        .threat-score {\n            background: linear-gradient(135deg, #e74c3c, #c0392b);\n            color: white;\n            padding: 5px 12px;\n            border-radius: 20px;\n            font-size: 0.9em;\n            font-weight: bold;\n            margin-left: auto;\n            min-width: 60px;\n            text-align: center;\n        }\n        \n        .threat-score.low { background: linear-gradient(135deg, #27ae60, #229954); }\n        .threat-score.medium { background: linear-gradient(135deg, #f39c12, #e67e22); }\n        .threat-score.high { background: linear-gradient(135deg, #e74c3c, #c0392b); }\n        \n        .info-section {\n            margin-bottom: 15px;\n        }\n        \n        .info-section h4 {\n            color: #34495e;\n            margin-bottom: 8px;\n            font-size: 1.1em;\n            display: flex;\n            align-items: center;\n        }\n        \n        .info-section p {\n            margin-bottom: 8px;\n            color: #555;\n            line-height: 1.5;\n        }\n        \n        .icon {\n            width: 16px;\n            height: 16px;\n            margin-right: 8px;\n            opacity: 0.7;\n        }\n        \n        .summary-section {\n            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);\n            color: white;\n            padding: 25px;\n            border-radius: 12px;\n            margin-top: 30px;\n        }\n        \n        .summary-section h2 {\n            margin-bottom: 15px;\n            font-size: 1.6em;\n        }\n        \n        .threat-overview {\n            display: grid;\n            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));\n            gap: 15px;\n            margin-top: 20px;\n        }\n        \n        .threat-item {\n            background: rgba(255,255,255,0.1);\n            padding: 15px;\n            border-radius: 8px;\n            backdrop-filter: blur(10px);\n        }\n        \n        .threat-item h4 {\n            margin-bottom: 8px;\n            color: #fff;\n        }\n        \n        .no-data {\n            color: #95a5a6;\n            font-style: italic;\n        }\n        \n        .page-break {\n            page-break-before: always;\n        }\n        \n        @media print {\n            body {\n                padding: 0;\n            }\n            .competitor-card {\n                break-inside: avoid;\n                margin-bottom: 20px;\n            }\n        }\n    </style>\n</head>\n<body>\n    <div class=\"header\">\n        <h1>🎯 Competitor Analysis Report</h1>\n        <div class=\"date\">Generated on: <span id=\"currentDate\">{{ new Date().toLocaleDateString() }}</span></div>\n    </div>\n\n    <div class=\"company-section\">\n        <div class=\"company-name\">📊 Analysis for {{ $('AI Transform').item.json[\"Name of Company\"] }}:</div>\n        <p><strong>Total Competitors Analyzed:</strong> {{ $('AI Transform').item.json['List of Competitors'].length }}</p>\n    </div>\n\n    <h2 style=\"color: #2c3e50; border-bottom: 2px solid #3498db; padding-bottom: 10px;\">🏢 Competitor Profiles</h2>\n    \n    <div class=\"competitors-grid\">\n        {{ $('Google Sheets5').all().map((competitor, index) => {\n            const score = parseFloat(competitor.json['Threat Score']) || 0;\n            const threatClass = score >= 8 ? 'high' : score >= 5 ? 'medium' : 'low';\n            const competitorActivity = $('Google Sheets4').all().find(item => item.json['Competitor'] === competitor.json['Competitor'])?.json || {};\n            \n            return `\n                <div class=\"competitor-card\">\n                    <div class=\"competitor-name\">\n                        ${competitor.json['Competitor'] || 'Unknown Competitor'}\n                        <span class=\"threat-score ${threatClass}\">${competitor.json['Threat Score']}/10</span>\n                    </div>\n                    \n                    <div class=\"info-section\">\n                        <h4>🎯 Market Positioning</h4>\n                        <p>${competitor.json['Positioning'] || 'No data available'}</p>\n                    </div>\n                    \n                    <div class=\"info-section\">\n                        <h4>📊 Strategic Shifts</h4>\n                        <p>${competitor.json['Strategic Shift'] || 'No recent strategic changes identified'}</p>\n                    </div>\n                    \n                    <div class=\"info-section\">\n                        <h4>⚠️ Identified Threats</h4>\n                        <p>${competitor.json['Threat'] || 'No immediate threats identified'}</p>\n                    </div>\n                    \n                    <div class=\"info-section\">\n                        <h4>🎯 Threat Score Analysis</h4>\n                        <p><strong>Score: ${competitor.json['Threat Score']}/10</strong> - ${\n                            score >= 8 ? 'HIGH PRIORITY: Immediate competitive threat requiring strategic attention' :\n                            score >= 5 ? 'MEDIUM PRIORITY: Moderate threat that should be monitored closely' :\n                            'LOW PRIORITY: Minor competitive concern with limited immediate impact'\n                        }</p>\n                    </div>\n                    \n                    <div class=\"info-section\">\n                        <h4>🚀 Summary</h4>\n                        <p>${competitorActivity['Summary'] || 'No recent summary '}</p>\n                    </div>\n                    \n                    \n                </div>\n            `;\n        }).join('') }}\n    </div>\n\n    <div class=\"summary-section\">\n        <h2>📈 Executive Summary</h2>\n        <p>This report provides a comprehensive analysis of the competitive landscape, including direct and indirect competitors, their recent activities, and threat assessments.</p>\n        \n        <div class=\"threat-overview\">\n            <div class=\"threat-item\">\n                <h4>🔴 High Threat (8-10)</h4>\n                <p>{{ $('Merge').all().filter(item => parseFloat(item.json['Threat Score']) >= 8).length || 'None' }}</p>\n            </div>\n            <div class=\"threat-item\">\n                <h4>🟡 Medium Threat (5-7)</h4>\n                <p>{{ $('Merge').all().filter(item => {\n                    const score = parseFloat(item.json['Threat Score']);\n                    return score >= 5 && score < 8;\n                }).length || 'None' }}</p>\n            </div>\n            <div class=\"threat-item\">\n                <h4>🟢 Low Threat (1-4)</h4>\n                <p>{{ $('Merge').all().filter(item => parseFloat(item.json['Threat Score']) < 5).length || 'None' }}</p>\n            </div>\n        </div>\n    </div>\n</body>\n</html>"
+      },
+      "type": "n8n-nodes-base.html",
+      "typeVersion": 1.2,
+      "position": [
+        2576,
+        508
+      ],
+      "id": "5ada922c-38ee-47f1-9531-f32ff9826f9a",
+      "name": "HTML",
+      "executeOnce": true
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [
+        3024,
+        948
+      ],
+      "id": "45349da3-fa14-466b-8bc7-d349ccaa63f3",
+      "name": "Wait1",
+      "webhookId": "9fa0b524-4ed6-4fbc-b4e4-cf0d9fa340cb"
+    },
+    {
+      "parameters": {
+        "jsCode": "const competitors = items[0].json[\"List of Competitors\"];\n\nreturn competitors.map(comp => {\n  return {\n    json: {\n      competitor: comp.trim()\n    }\n  };\n});"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        704,
+        1388
+      ],
+      "id": "3cb68679-151f-40d9-a55c-7611c9936952",
+      "name": "Code"
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.errorTrigger",
+      "typeVersion": 1,
+      "position": [
+        -768,
+        208
+      ],
+      "id": "4d05ece2-c2c8-4907-b6bb-7094985972aa",
+      "name": "Error Trigger"
+    },
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "value": "1u-YDZMz4BGijSENiAEl0ew4_-2tJE661O7Cx0-HQ6qg",
+          "mode": "list",
+          "cachedResultName": "competitor analysis",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1u-YDZMz4BGijSENiAEl0ew4_-2tJE661O7Cx0-HQ6qg/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 1684701457,
+          "mode": "list",
+          "cachedResultName": "OrganisedData",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1u-YDZMz4BGijSENiAEl0ew4_-2tJE661O7Cx0-HQ6qg/edit#gid=1684701457"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.6,
+      "position": [
+        2040,
+        432
+      ],
+      "id": "e7172677-f243-44ba-ae0e-2383b20cf524",
+      "name": "Google Sheets4",
+      "executeOnce": true
+    },
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "value": "1u-YDZMz4BGijSENiAEl0ew4_-2tJE661O7Cx0-HQ6qg",
+          "mode": "list",
+          "cachedResultName": "competitor analysis",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1u-YDZMz4BGijSENiAEl0ew4_-2tJE661O7Cx0-HQ6qg/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 1995740510,
+          "mode": "list",
+          "cachedResultName": "Threat Score",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1u-YDZMz4BGijSENiAEl0ew4_-2tJE661O7Cx0-HQ6qg/edit#gid=1995740510"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.6,
+      "position": [
+        2040,
+        1024
+      ],
+      "id": "8550aec0-f2f0-4304-af9a-5e7a171125c1",
+      "name": "Google Sheets5",
+      "executeOnce": true
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3.2,
+      "position": [
+        2352,
+        508
+      ],
+      "id": "fa2dd5d2-f649-4cd5-8c13-b2d0226ee986",
+      "name": "Merge"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.pdfendpoint.com/v1/convert",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "Bearer pdfe_live_6f5183b3cff2a63a3d52a1d9df31be49683d"
+            }
+          ]
+        },
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "html",
+              "value": "={{ $json.html }}"
+            },
+            {
+              "name": "margin_top",
+              "value": "1cm"
+            },
+            {
+              "name": "margin_bottom",
+              "value": "1cm"
+            },
+            {
+              "name": "margin_right",
+              "value": "1cm"
+            },
+            {
+              "name": "margin_left",
+              "value": "1cm"
+            },
+            {
+              "name": "no_backgrounds",
+              "value": "true"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        2800,
+        508
+      ],
+      "id": "60110b40-a560-47c0-bfe3-4c7af297d66e",
+      "name": "pdf_conversion"
+    },
+    {
+      "parameters": {
+        "content": "## Extract the competitors (new as well as established)\nusing the google search",
+        "height": 120,
+        "width": 400
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        320,
+        1872
+      ],
+      "id": "a7e4a0e0-07e9-4751-aec1-11eae5b715a1",
+      "name": "Sticky Note"
+    },
+    {
+      "parameters": {
+        "content": "## Extract certain fields against each competitor\n-> Product Launches\t->Partnerships\t\n->Funding Rounds\t->Regulatory Activity\t->Press/Other Highlights",
+        "height": 300,
+        "width": 380
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        1840,
+        1824
+      ],
+      "id": "c6d8ebf3-812e-4912-a78f-9f453b948c5f",
+      "name": "Sticky Note1"
+    },
+    {
+      "parameters": {
+        "content": "## Estimate threat score based on certain parameters including:\nPositioning\tStrategic Shift\nThreat\t\nThreat Score\nIn the end create a pdf from html and store inside a drive",
+        "height": 200,
+        "width": 280
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        1280,
+        592
+      ],
+      "id": "c54a2217-ab98-4855-9949-f0951a1123b8",
+      "name": "Sticky Note2"
+    },
+    {
+      "parameters": {
+        "url": "={{ $json.data.url }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        3024,
+        508
+      ],
+      "id": "0443be71-7822-493e-a3b1-2aa8ec11b84f",
+      "name": "fetch file"
+    },
+    {
+      "parameters": {
+        "authentication": "oAuth2",
+        "select": "user",
+        "user": {
+          "__rl": true,
+          "value": "U07CE2J18BC",
+          "mode": "list",
+          "cachedResultName": "qamarha28"
+        },
+        "text": "Can you please look into the error occured inside workflow?",
+        "otherOptions": {}
+      },
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2.3,
+      "position": [
+        -544,
+        208
+      ],
+      "id": "70711c44-c3fa-4481-ad67-a9e7f883d909",
+      "name": "Slack",
+      "webhookId": "7f122974-9d53-4bda-a560-91aa261edefd"
+    },
+    {
+      "parameters": {
+        "content": "## Error Handling\n* In case any error arises during the workflow we will receive message on slack.",
+        "width": 540
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        0,
+        0
+      ],
+      "id": "1fe9d27f-ba81-43a1-9877-232a5e2779a4",
+      "name": "Sticky Note3"
+    },
+    {
+      "parameters": {
+        "pollTimes": {
+          "item": [
+            {
+              "hour": 12
+            }
+          ]
+        },
+        "documentId": {
+          "__rl": true,
+          "value": "1u-YDZMz4BGijSENiAEl0ew4_-2tJE661O7Cx0-HQ6qg",
+          "mode": "list",
+          "cachedResultName": "competitor analysis",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1u-YDZMz4BGijSENiAEl0ew4_-2tJE661O7Cx0-HQ6qg/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Sheet1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1u-YDZMz4BGijSENiAEl0ew4_-2tJE661O7Cx0-HQ6qg/edit#gid=0"
+        },
+        "event": "rowAdded",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheetsTrigger",
+      "typeVersion": 1,
+      "position": [
+        -768,
+        1388
+      ],
+      "id": "2060e5a0-1284-471a-94c7-57ce720ea47a",
+      "name": "Google Sheets Trigger Daily"
+    },
+    {
+      "parameters": {
+        "toolDescription": "Makes an HTTP request and returns the response data containing google search results",
+        "method": "POST",
+        "url": "https://google.serper.dev/search",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "X-API-KEY",
+              "value": "2826e5d216c467b65dc7f3e16943e8f502e8aec8"
+            }
+          ]
+        },
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "q",
+              "value": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('parameters0_Value', `query should have following format for every company\nname of company + area of focus + cadence`, 'string') }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequestTool",
+      "typeVersion": 4.2,
+      "position": [
+        1312,
+        1612
+      ],
+      "id": "7f3a000d-19a3-45fa-a86d-94aff9a51043",
+      "name": "Google Search Results2"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Google Search Results": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent": {
+      "main": [
+        [
+          {
+            "node": "AI Agent1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent1": {
+      "main": [
+        [
+          {
+            "node": "Google Sheets",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Sheets": {
+      "main": [
+        [
+          {
+            "node": "AI Transform",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Transform": {
+      "main": [
+        [
+          {
+            "node": "Code",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent2": {
+      "main": [
+        [
+          {
+            "node": "AI Agent3",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Loop Over Items": {
+      "main": [
+        [
+          {
+            "node": "Google Sheets2",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "AI Agent2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wait": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Items",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent3": {
+      "main": [
+        [
+          {
+            "node": "AI Transform1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Gemini Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent2",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Gemini Chat Model1": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Gemini Chat Model2": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent1",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Gemini Chat Model3": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent3",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Transform1": {
+      "main": [
+        [
+          {
+            "node": "Google Sheets1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Sheets2": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Items1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Gemini Chat Model4": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent4",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Sheets1": {
+      "main": [
+        [
+          {
+            "node": "Wait",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Loop Over Items1": {
+      "main": [
+        [
+          {
+            "node": "Google Sheets5",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Google Sheets4",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "AI Agent4",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent4": {
+      "main": [
+        [
+          {
+            "node": "AI Transform2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Sheets3": {
+      "main": [
+        [
+          {
+            "node": "Wait1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Transform2": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields1": {
+      "main": [
+        [
+          {
+            "node": "Google Sheets3",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wait1": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Items1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Items",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Error Trigger": {
+      "main": [
+        [
+          {
+            "node": "Slack",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Sheets4": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Sheets5": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "Merge": {
+      "main": [
+        [
+          {
+            "node": "HTML",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTML": {
+      "main": [
+        [
+          {
+            "node": "pdf_conversion",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "pdf_conversion": {
+      "main": [
+        [
+          {
+            "node": "fetch file",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Sheets Trigger Daily": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Search Results2": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent2",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "f75111b1-1a0e-413d-94b0-062190fe7ccf",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "375261ce0112b8a2d3717518d5be0b68e9dfa2fc9211d1bc5bd821173464c9c5"
+  },
+  "id": "UWMv5drIIbr5PUS2",
+  "tags": []
+}
